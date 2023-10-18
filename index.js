@@ -77,7 +77,7 @@ app.post('/upload', async (req, res) => {
     // Upload the zip file to Google Cloud Storage
     const bucketName = 'avataryaidemo_bucket';
     const fileStream = storage.bucket(bucketName).file(fileName).createWriteStream();
-    axios.post('https://naughty-deer-smock.cyclic.app/email', { email })
+    axios.post('https://aihair-prediction.onrender.com/email', { email })
         .then(response => {
             console.log('Email sent successfully:', response.data);
         })
