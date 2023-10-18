@@ -1,0 +1,6 @@
+/.env
+/uploads
+/node_modules
+/package-lock.json
+/aihair/node_modules
+/aihair/package-lock.json
