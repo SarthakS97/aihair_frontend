@@ -8,7 +8,7 @@ const axios = require('axios');
 
 const Replicate = require('replicate');
 const replicate = new Replicate({
-    auth: process.env.REPLICATE_KEY,
+    auth: 'r8_9lVdjy8zKbsIpBtvhUzI7yU3rMZfB3E29bDy8',
 });
 require('dotenv').config(); // Load environment variables from .env file
 
@@ -71,12 +71,19 @@ app.post('/upload', async (req, res) => {
     }
 
     const file = req.files.file;
+    const email = req.query.email;
     const fileName = file.name;
 
     // Upload the zip file to Google Cloud Storage
     const bucketName = 'avataryaidemo_bucket';
     const fileStream = storage.bucket(bucketName).file(fileName).createWriteStream();
-
+    axios.post('https://naughty-deer-smock.cyclic.app/email', { email })
+        .then(response => {
+            console.log('Email sent successfully:', response.data);
+        })
+        .catch(error => {
+            console.error('Error sending email:', error);
+        });
     fileStream.on('error', (err) => {
         console.error('Error uploading file to Google Cloud Storage:', err);
         res.status(500).json({ error: 'Error uploading file' });
