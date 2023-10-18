@@ -1,6 +1,7 @@
 const express = require('express');
 const { Storage } = require('@google-cloud/storage');
-const multer = require('multer');
+// const multer = require('multer');
+const fileUpload = require('express-fileupload');
 const cors = require('cors');
 const path = require('path');
 const axios = require('axios');
@@ -15,6 +16,7 @@ require('dotenv').config(); // Load environment variables from .env file
 const app = express();
 const PORT = 5000;
 app.use(express.json()); // Add this line to parse JSON requests
+app.use(fileUpload());
 
 const corsOptions = {
     origin: 'http://localhost:3000', // Replace with the actual origin of your React app
@@ -33,8 +35,17 @@ const storage = new Storage({
 
 const bucketName = 'avataryaidemo_bucket'; // Replace with your Google Cloud Storage bucket name
 
-const upload = multer({ dest: 'uploads/' });
-
+// const upload = multer({
+//     storage: multer.memoryStorage(),
+//     fileFilter: (req, file, cb) => {
+//         const filetypes = /zip/;
+//         const mimetype = filetypes.test(file.mimetype);
+//         if (mimetype) {
+//             return cb(null, true);
+//         }
+//         cb('Error: Only zip files are allowed!');
+//     },
+// });
 // const outputLinks = [];
 
 async function startTraining(publicUrl) {
@@ -54,36 +65,35 @@ async function startTraining(publicUrl) {
     }
 }
 
-app.post('/upload', upload.single('file'), async (req, res) => {
-    const file = req.file;
-
-    if (!file) {
-        return res.status(400).send('No file uploaded.');
+app.post('/upload', async (req, res) => {
+    if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).send('No files were uploaded.');
     }
 
-    const fileName = 'images.zip';
-    const email = req.query.email; // Extract the email from the request query parameters
-    // console.log(email)
-    // Upload file to Google Cloud Storage
-    await storage.bucket(bucketName).upload(file.path, {
-        destination: fileName,
+    const file = req.files.file;
+    const fileName = file.name;
+
+    // Upload the zip file to Google Cloud Storage
+    const bucketName = 'avataryaidemo_bucket';
+    const fileStream = storage.bucket(bucketName).file(fileName).createWriteStream();
+
+    fileStream.on('error', (err) => {
+        console.error('Error uploading file to Google Cloud Storage:', err);
+        res.status(500).json({ error: 'Error uploading file' });
     });
-    axios.post('http://2e5b-49-205-129-224.ngrok.io/email', { email })
-        .then(response => {
-            console.log('Email sent successfully:', response.data);
-        })
-        .catch(error => {
-            console.error('Error sending email:', error);
-        });
 
-    const publicUrl = `https://storage.googleapis.com/${bucketName}/${fileName}`;
-    // outputLinks.push({ publicUrl, email }); // Store the public URL and email
+    fileStream.on('finish', async () => {
+        const publicUrl = `https://storage.googleapis.com/${bucketName}/${fileName}`;
+        res.json({ publicUrl });
+        console.log('Public URL:', publicUrl);
+        console.log('Email:', req.body.email);
+        startTraining(publicUrl);
+    });
 
-    res.json({ publicUrl });
-    console.log('Public URL:', publicUrl);
-    console.log('Email:', email);
-    startTraining(publicUrl);
+    fileStream.end(file.data);
 });
+
+
 
 // app.post('/webhook_predictions', (req, res) => {
 //     const payload = req.body;
