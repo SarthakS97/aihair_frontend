@@ -56,7 +56,7 @@ async function startTraining(publicUrl) {
                 input_images: publicUrl,
                 "use_face_detection_instead": true,
             },
-            webhook: 'http://f3b0-49-205-129-224.ngrok.io/webhook_training',
+            webhook: 'https://awful-jade-windbreaker.cyclic.app/webhook_training',
             webhook_events_filter: ['completed'],
         });
         console.log(`URL: https://replicate.com/p/${training.id}`);
@@ -77,7 +77,7 @@ app.post('/upload', async (req, res) => {
     // Upload the zip file to Google Cloud Storage
     const bucketName = 'avataryaidemo_bucket';
     const fileStream = storage.bucket(bucketName).file(fileName).createWriteStream();
-    axios.post('http://5e09-49-205-129-224.ngrok.io/email', { email })
+    axios.post('https://naughty-deer-smock.cyclic.app/email', { email })
         .then(response => {
             console.log('Email sent successfully:', response.data);
         })
