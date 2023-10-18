@@ -56,7 +56,7 @@ async function startTraining(publicUrl) {
                 input_images: publicUrl,
                 "use_face_detection_instead": true,
             },
-            webhook: 'https://awful-jade-windbreaker.cyclic.app/webhook_training',
+            webhook: 'https://aihair-training.onrender.com/webhook_training',
             webhook_events_filter: ['completed'],
         });
         console.log(`URL: https://replicate.com/p/${training.id}`);
