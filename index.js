@@ -8,7 +8,7 @@ const axios = require('axios');
 
 const Replicate = require('replicate');
 const replicate = new Replicate({
-    auth: 'r8_9lVdjy8zKbsIpBtvhUzI7yU3rMZfB3E29bDy8',
+    auth: 'key',
 });
 require('dotenv').config(); // Load environment variables from .env file
 
